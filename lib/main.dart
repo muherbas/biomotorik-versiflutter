@@ -66,6 +66,7 @@ class MainNavigationHolder extends StatefulWidget {
 
 class _MainNavigationHolderState extends State<MainNavigationHolder> {
   int _currentIndex = 0; 
+ bool _isPageLoading = false;
   String _selectedMuridId = "001"; 
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
