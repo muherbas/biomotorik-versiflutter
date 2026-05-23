@@ -236,8 +236,28 @@ class _MainNavigationHolderState extends State<MainNavigationHolder> {
       TimelineHistoryPage(activeMurid: _currentMurid), 
     ];
 
-    return Scaffold(
-      body: SafeArea(child: pages[_currentIndex]),
+        return Scaffold(
+      body: Stack(
+        children: [
+          SafeArea(child: pages[_currentIndex]),
+          
+          // <-- KODE FAKE SPLASH SAAT PINDAH HALAMAN -->
+          if (_isPageLoading)
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: const Color(0xFF0F172A), 
+              child: Center(
+                child: Image.asset(
+                  'assets/splash.png', 
+                  width: 200, 
+                ),
+              ),
+            ),
+        ],
+      ),
+// ...
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
