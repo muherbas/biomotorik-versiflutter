@@ -1,169 +1,61 @@
-name: Build Babe Juara APK Modern
-on: [push]
+name: Flutter Build APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Membuat tombol agar bisa build manual dari halaman web GitHub
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Ambil Kode Proyek Utama
+      # 1. Mengambil kode dari repository GitHub kamu
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Java untuk Android
+      # 2. Setup Java Environment (Wajib untuk kompilasi Android)
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Install Flutter Mesin Resmi
+      # 3. Setup Flutter Environment di Server Cloud GitHub
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
+          channel: 'stable'
 
-      - name: Taktis Rakit Proyek Baru Segar
-        run: |
-          # 1. Bikin proyek baru utuh
-          flutter create --platforms=android proyek_segar
-          
-          # 2. Bikin folder aset di proyek segar
-          mkdir -p proyek_segar/assets
-          
-          # 3. Salin dari folder assets asli
-          if [ -d "assets" ]; then
-            cp -r assets/* proyek_segar/assets/ || true
-          fi
-          if [ -d "Assets" ]; then
-            cp -r Assets/* proyek_segar/assets/ || true
-          fi
-          
-          # 4. Huruf kecilkan semua aset agar aman dari error sistem Android
-          cd proyek_segar/assets
-          mv Grafik_biomotorik.html grafik_biomotorik.html 2>/dev/null || true
-          mv grafik_biomotorik.HTML grafik_biomotorik.html 2>/dev/null || true
-          mv Splash.png splash.png 2>/dev/null || true
-          mv splash.PNG splash.png 2>/dev/null || true
-          mv Logo.png logo.png 2>/dev/null || true
-          mv logo.PNG logo.png 2>/dev/null || true
-          cd ../..
-          
-          # 5. Buat pubspec.yaml yang bersih
-          cat << 'EOF' > proyek_segar/pubspec.yaml
-          name: proyek_segar
-          description: "Build APK Babe Juara Pro"
-          publish_to: 'none'
-          version: 1.0.0+1
+      # 4. Mengunduh semua package yang terdaftar di pubspec.yaml
+      - name: Install dependencies
+        run: "flutter pub get"
 
-          environment:
-            sdk: '>=3.2.0 <4.0.0'
+      # 5. Mengubah Nama Aplikasi secara otomatis
+      - name: Generate App Name
+        run: "dart run flutter_launcher_name:main"
 
-          dependencies:
-            flutter:
-              sdk: flutter
-            flutter_inappwebview: ^6.0.0
+      # 6. Mengubah Package Name secara otomatis
+      - name: Change Package Name
+        run: "dart run change_app_package_name:main com.bskrwingchun.hpki"
 
-          dev_dependencies:
-            flutter_test:
-              sdk: flutter
-            flutter_lints: ^3.0.0
+      # 7. Membuat Ikon Aplikasi secara otomatis dari assets/logo.png
+      - name: Generate Icons
+        run: "dart run flutter_launcher_icons"
 
-          flutter:
-            uses-material-design: true
-            assets:
-              - assets/
-          EOF
-          
-          # 6. KUNCI PAKSA GRADLE MODERN
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip" > proyek_segar/android/gradle/wrapper/gradle-wrapper.properties
-          
-          # 7. Tulis ulang settings.gradle bawaan
-          cat << 'EOF' > proyek_segar/android/settings.gradle
-          pluginManagement {
-              def flutterSdkPath = {
-                  def properties = new Properties()
-                  def propertiesFile = new File(settingsDir, "local.properties")
-                  if (propertiesFile.exists()) {
-                      propertiesFile.withReader("UTF-8") { reader -> properties.load(reader) }
-                  }
-                  def sdkPath = properties.getProperty("flutter.sdk")
-                  assert sdkPath != null, "flutter.sdk not set in local.properties"
-                  return sdkPath
-              }()
+      # 8. Membuat Native Splash Screen secara otomatis dari assets/splash.png
+      - name: Generate Splash Screen
+        run: "dart run flutter_native_splash:create"
 
-              includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+      # 9. Proses Kompilasi/Build menjadi file APK Release yang Optimal
+      - name: Build APK Release
+        run: "flutter build apk --release"
 
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-
-          plugins {
-              id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
-              id "com.android.application" version "8.2.1" apply false
-              id "org.jetbrains.kotlin.android" version "1.9.22" apply false
-          }
-
-          include ":app"
-          EOF
-          
-          # 8. Tulis ulang file build.gradle dengan Angka Versi Manual (Penyembuh Line 25)
-          cat << 'EOF' > proyek_segar/android/app/build.gradle
-          plugins {
-              id "com.android.application"
-              id "kotlin-android"
-              id "dev.flutter.flutter-gradle-plugin"
-          }
-
-          android {
-              namespace "com.example.proyek_segar"
-              compileSdk 34
-              ndkVersion flutter.ndkVersion
-
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_1_8
-                  targetCompatibility JavaVersion.VERSION_1_8
-                }
-
-              kotlinOptions {
-                  jvmTarget = '1.8'
-              }
-
-              defaultConfig {
-                  applicationId "com.example.proyek_segar"
-                  minSdkVersion 24
-                  targetSdkVersion 34
-                  versionCode 1
-                  versionName "1.0.0"
-                  multiDexEnabled true
-              }
-
-              buildTypes {
-                  release {
-                      signingConfig signingConfigs.debug
-                  }
-              }
-          }
-
-          flutter {
-              source '../..'
-          }
-          EOF
-
-          # 9. Buat folder lib baru, buang bawaan robot
-          rm -rf proyek_segar/lib
-          mkdir -p proyek_segar/lib
-          
-          # 10. Masukkan file main.dart asli milik Bapak
-          cp lib/main.dart proyek_segar/lib/main.dart
-          
-          # 11. Eksekusi Bersih & Rakit APK Resmi
-          cd proyek_segar
-          flutter clean
-          flutter pub get
-          flutter build apk --release
-
-      - name: Simpan File APK Siap Download
+      # 10. Menyimpan dan Mengunggah file APK agar bisa diunduh dari web GitHub
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: babe-juara-release-apk
-          path: proyek_segar/build/app/outputs/flutter-apk/app-release.apk
+          name: Zone-Atleta-Release-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
