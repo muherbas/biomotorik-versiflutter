@@ -1,3 +1,64 @@
+name: Flutter Build APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Membuat tombol agar bisa build manual dari halaman web GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Mengambil kode dari repository GitHub kamu
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Java Environment (Wajib untuk kompilasi Android)
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Setup Flutter Environment di Server Cloud GitHub
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 4. Mengunduh semua package yang terdaftar di pubspec.yaml
+      - name: Install dependencies
+        run: "flutter pub get"
+
+      # 5. Mengubah Nama Aplikasi secara otomatis
+      - name: Generate App Name
+        run: "dart run flutter_launcher_name:main"
+
+      # 6. Mengubah Package Name secara otomatis menjadi com.bskrwingchun.hapki
+      - name: Change Package Name
+        run: "dart run change_app_package_name:main com.zoneatleta.app"
+
+      # 7. Membuat Ikon Aplikasi secara otomatis dari assets/logo.png
+      - name: Generate Icons
+        run: "dart run flutter_launcher_icons"
+
+      # 8. Membuat Native Splash Screen secara otomatis dari assets/splash.png
+      - name: Generate Splash Screen
+        run: "dart run flutter_native_splash:create"
+
+      # 9. Proses Kompilasi/Build menjadi file APK Release yang Optimal
+      - name: Build APK Release
+        run: "flutter build apk --release"
+
+      # 10. Menyimpan dan Menggah file APK agar bisa diunduh dari web GitHub
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zone-Atleta-Release-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
 
       name: Preview UI via GitHub Pages
 
