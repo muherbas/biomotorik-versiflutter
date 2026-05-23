@@ -1,5 +1,5 @@
     steps:
-      # 1. Mengambil kode dari repository GitHub kamu
+      
       - name: Checkout repository
         uses: actions/checkout@v4
 
