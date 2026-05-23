@@ -258,10 +258,23 @@ class _MainNavigationHolderState extends State<MainNavigationHolder> {
       ),
 // ...
 
-      bottomNavigationBar: BottomNavigationBar(
+            bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        // <-- UBAH onTap MENJADI SEPERTI INI -->
+        onTap: (i) async {
+          if (_currentIndex == i) return; 
+          
+          setState(() => _isPageLoading = true); 
+          
+          await Future.delayed(const Duration(seconds: 1)); 
+          
+          setState(() {
+            _currentIndex = i; 
+            _isPageLoading = false; 
+          });
+        },
         backgroundColor: const Color(0xFF1E293B), 
+// ...
         selectedItemColor: const Color(0xFF38BDF8),
         unselectedItemColor: const Color(0xFF64748B),
         type: BottomNavigationBarType.fixed,
