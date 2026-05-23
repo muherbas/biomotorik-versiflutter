@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+// 1. TAMBAHKAN IMPORT INI
+import 'package:flutter_native_splash/flutter_native_splash.dart'; 
 
 void main() {
+  // 2. TAMBAHKAN KODE INI UNTUK MENAHAN SPLASH SCREEN
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   runApp(const MyApp());
+
+  // 3. HAPUS SPLASH SCREEN SETELAH 2 DETIK
+  Future.delayed(const Duration(seconds: 2), () {
+    FlutterNativeSplash.remove();
+  });
 }
+
+// ... (kode class MyApp dkk tetap sama)
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
