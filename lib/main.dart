@@ -86,7 +86,13 @@ class _MainNavigationHolderState extends State<MainNavigationHolder> {
     _daftarMurid = [];
   }
 
-  Murid get _currentMurid => _daftarMurid.firstWhere((m) => m.id == _selectedMuridId, orElse: () => _daftarMurid.first);
+  Murid get _currentMurid => _daftarMurid.firstWhere(
+        (m) => m.id == _selectedMuridId, 
+        orElse: () => _daftarMurid.isNotEmpty 
+            ? _daftarMurid.first 
+            : Murid(id: "000", nama: "BELUM ADA SISWA", boxData: List.generate(7, (_) => [0,0,0,0,0,0]), radarData: List.generate(10, (_) => 0.0)),
+      );
+
 
   List<double> get _teamAverageBoxScores {
     List<double> averages = List.generate(7, (_) => 0.0);
