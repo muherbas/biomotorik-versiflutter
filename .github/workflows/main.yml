@@ -1,5 +1,14 @@
-    steps:
-      
+
+      name: Preview UI via GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
       - name: Checkout repository
         uses: actions/checkout@v4
 
