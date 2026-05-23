@@ -8,7 +8,7 @@ on:
   workflow_dispatch: # Membuat tombol agar bisa build manual dari halaman web GitHub
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
