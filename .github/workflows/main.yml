@@ -1,19 +1,11 @@
-name: Flutter Build APK
-
-on:
-  push:
-    branches:
-      - main
-     
-  workflow_dispatch: # Membuat tombol agar bisa build manual dari halaman web GitHub
+name: Build Babe Juara APK Modern
+on: [push]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Mengambil kode dari repository GitHub kamu
-      - name: Checkout repository
+      - name: Ambil Kode Proyek Utama
         uses: actions/checkout@v4
 
       # 2. Setup Java Environment (Wajib untuk kompilasi Android)
